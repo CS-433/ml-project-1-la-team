@@ -11,7 +11,7 @@ def least_squares_GD(y, tx, initial_w,max_iters, gamma):
     w = initial_w
     for _ in range(max_iters):
         w -= gamma * compute_gradient(y, tx, w)
-    return w,compute_mse(y, tx, w)
+    return w, compute_mse(y, tx, w)
 
 def least_squares_SGD(y, tx, initial_w,max_iters, gamma):
     """Linear regression using stochastic gradient descent"""
@@ -23,7 +23,6 @@ def least_squares_SGD(y, tx, initial_w,max_iters, gamma):
 
 def least_squares(y, tx) :
     """"Least squares regression using normal equations"""
-    # w = np.linalg.solve(tx.T.dot(tx),tx.T.dot(y))
     w = np.linalg.solve(tx.T@tx, tx.T@y)
     return w, compute_mse(y,tx,w)
 
@@ -31,8 +30,7 @@ def ridge_regression(y, tx, lambda_) :
     """Ridge regression using normal equations"""
     N, D = tx.shape
     w = np.linalg.solve(tx.T @ tx + lambda_*2*N*np.eye(D), tx.T@y)
-    # w = np.linalg.solve(tx.T.dot(tx) + lambda_ * 2 * tx.shape[0] * np.eye(tx.shape[1]), tx.T.dot(y))
-    return w,compute_mse(y, tx, w)
+    return w, compute_mse(y, tx, w)
 
 def logistic_regression(y, tx, initial_w, max_iters, gamma):
     """Logistic regression using gradient descent or SGD (y ∈ {0, 1})"""
