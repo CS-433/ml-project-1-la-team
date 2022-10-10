@@ -1,4 +1,4 @@
-# ML Project 1 : Finding the Higgs Boso
+# ML Project 1 : Finding the Higgs Boson
 
 Text
 
