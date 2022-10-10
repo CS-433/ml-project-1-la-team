@@ -42,7 +42,7 @@ def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
 
 
 def compute_gradient(y,tx,w):
-    - tx.T.dot(y - tx @ w) / len(y)
+    return - tx.T.dot(y - tx @ w) / len(y)
 
 def compute_mse(y,tx,w):
-    0.5*np.mean((y - tx @ w)**2)
+    return 0.5*np.mean((y - tx @ w)**2)
