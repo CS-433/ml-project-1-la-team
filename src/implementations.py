@@ -40,7 +40,6 @@ def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
     """Regularized logistic regression using gradient descent or SGD (y ∈ {0, 1}, with regularization term λ∥w∥²)"""
     #return w, loss
 
-
 def compute_gradient(y,tx,w):
     return - tx.T.dot(y - tx @ w) / len(y)
 

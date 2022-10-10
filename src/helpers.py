@@ -29,6 +29,10 @@ def load_data(sub_sample=True, add_outlier=False):
 
     return height, weight, gender
 
+def isMissing():
+    path_dataset = "./data/train.csv"
+    data = np.genfromtxt(path_dataset, delimiter=",", skip_header=1)
+
 
 def standardize(x):
     """Standardize the original data set."""
