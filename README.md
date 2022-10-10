@@ -30,5 +30,5 @@ infos
 
 - Killian Raude
 - Joris Monnet
-- ColinPelletier
+- Colin Pelletier
 
