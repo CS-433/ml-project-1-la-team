@@ -18,7 +18,7 @@ def least_squares_SGD(y, tx, initial_w,max_iters, gamma):
     w = initial_w
     for _ in range(max_iters):
         for y_batch, tx_batch in batch_iter(y, tx, batch_size=1, num_batches=1):
-            w = w - gamma * compute_gradient(y_batch, tx_batch, w)
+            w -= gamma * compute_gradient(y_batch, tx_batch, w)
     return w, compute_mse(y, tx, w)
 
 def least_squares(y, tx) :
