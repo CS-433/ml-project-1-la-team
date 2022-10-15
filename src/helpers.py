@@ -3,40 +3,38 @@
 import numpy as np
 
 
-def load_data(sub_sample=True, add_outlier=False):
-    """Load data and convert it to the metric system."""
-    path_dataset = "height_weight_genders.csv"
-    data = np.genfromtxt(
-        path_dataset, delimiter=",", skip_header=1, usecols=[1, 2])
-    height = data[:, 0]
-    weight = data[:, 1]
-    gender = np.genfromtxt(
-        path_dataset, delimiter=",", skip_header=1, usecols=[0],
-        converters={0: lambda x: 0 if b"Male" in x else 1})
-    # Convert to metric system
-    height *= 0.025
-    weight *= 0.454
+# def load_data(path_dataset, sub_sample=True, add_outlier=False):
+#     """Load data and convert it to the metric system."""
+#     data = np.genfromtxt(path_dataset,
+#         skip_header=1, missing_values=['s', 'b'], filling_values=['0', '1'], 
+#         max_rows=50 if sub_sample else None)
 
-    # sub-sample
-    if sub_sample:
-        height = height[::50]
-        weight = weight[::50]
+#     y = ...
+    
+#     return x, y
 
-    if add_outlier:
-        # outlier experiment
-        height = np.concatenate([height, [1.1, 1.2]])
-        weight = np.concatenate([weight, [51.5/0.454, 55.3/0.454]])
+def load_data(path_dataset, sub_sample=False, add_outlier=False):
+    # Load all data for the x array
+    data = np.genfromtxt(path_dataset, delimiter=',', skip_header=1,
+            max_rows=50 if sub_sample else None)
+    x =  data[:, 2:].copy()
 
-    return height, weight, gender
+    # Load only the first column to generate the first array
+    y_raw = np.genfromtxt(path_dataset, delimiter=',', skip_header=1, 
+            max_rows=50 if sub_sample else None, usecols=[1], 
+            dtype=np.string_)
 
-def isMissing():
-    path_dataset = "./data/train.csv"
-    data = np.genfromtxt(path_dataset, delimiter=",", skip_header=1)
+    y = []
+    for sample in y_raw:
+        y.append(0 if sample==bytes('b','ascii') else 1)
+    y = np.array(y)[:, np.newaxis]
+    
+    return x, y
 
 
-def standardize(x):
+def standardize(x, missing_values=False):
     """Standardize the original data set."""
-    mean_x = np.mean(x)
+    mean_x = np.nanmean(x) if missing_values else np.mean(x)
     x = x - mean_x
     std_x = np.std(x)
     x = x / std_x
@@ -76,3 +74,34 @@ def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
         end_index = min((batch_num + 1) * batch_size, data_size)
         if start_index != end_index:
             yield shuffled_y[start_index:end_index], shuffled_tx[start_index:end_index]
+
+def split_data(x, y, ratio, seed=1):
+    """
+    split the dataset based on the split ratio. If ratio is 0.8 
+    you will have 80% of your data set dedicated to training 
+    and the rest dedicated to testing. If ratio times the number of samples is not round
+    you can use np.floor. Also check the documentation for np.random.permutation,
+    it could be useful.
+    
+    Args:
+        x: numpy array of shape (N,), N is the number of samples.
+        y: numpy array of shape (N,).
+        ratio: scalar in [0,1]
+        seed: integer.
+        
+    Returns:
+        x_tr: numpy array containing the train data.
+        x_te: numpy array containing the test data.
+        y_tr: numpy array containing the train labels.
+        y_te: numpy array containing the test labels.
+        
+    >>> split_data(np.arange(13), np.arange(13), 0.8, 1)
+    (array([ 2,  3,  4, 10,  1,  6,  0,  7, 12,  9]), array([ 8, 11,  5]), array([ 2,  3,  4, 10,  1,  6,  0,  7, 12,  9]), array([ 8, 11,  5]))
+    """
+    # set seed
+    np.random.seed(seed)
+    N = x.shape[0]
+    tr_size = int(N*ratio)
+    perms = np.random.permutation(N)
+
+    return x[perms[:tr_size]], x[perms[tr_size:]], y[perms[:tr_size]], y[perms[tr_size:]]
