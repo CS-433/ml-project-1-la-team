@@ -32,23 +32,17 @@ def load_data(path_dataset, sub_sample=False, add_outlier=False):
     return x, y
 
 
-def standardize(x, missing_values=False):
+def standardize_training(x, missing_values=True):
     """Standardize the original data set."""
-    mean_x = np.nanmean(x) if missing_values else np.mean(x)
+    mean_x = np.nanmean(x, axis=0) if missing_values else np.mean(x, axis=0)
     x = x - mean_x
-    std_x = np.std(x)
+    std_x = np.nanstd(x, axis=0) if missing_values else np.std(x, axis=0)
     x = x / std_x
     return x, mean_x, std_x
 
-
-def build_model_data(height, weight):
-    """Form (y,tX) to get regression data in matrix form."""
-    y = weight
-    x = height
-    num_samples = len(y)
-    tx = np.c_[np.ones(num_samples), x]
-    return y, tx
-
+def standardize_test(x, mean_x, std_x):
+    """"""
+    return (x - mean_x) / std_x
 
 def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
     """
@@ -75,33 +69,42 @@ def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
         if start_index != end_index:
             yield shuffled_y[start_index:end_index], shuffled_tx[start_index:end_index]
 
-def split_data(x, y, ratio, seed=1):
-    """
-    split the dataset based on the split ratio. If ratio is 0.8 
-    you will have 80% of your data set dedicated to training 
-    and the rest dedicated to testing. If ratio times the number of samples is not round
-    you can use np.floor. Also check the documentation for np.random.permutation,
-    it could be useful.
-    
-    Args:
-        x: numpy array of shape (N,), N is the number of samples.
-        y: numpy array of shape (N,).
-        ratio: scalar in [0,1]
-        seed: integer.
-        
-    Returns:
-        x_tr: numpy array containing the train data.
-        x_te: numpy array containing the test data.
-        y_tr: numpy array containing the train labels.
-        y_te: numpy array containing the test labels.
-        
-    >>> split_data(np.arange(13), np.arange(13), 0.8, 1)
-    (array([ 2,  3,  4, 10,  1,  6,  0,  7, 12,  9]), array([ 8, 11,  5]), array([ 2,  3,  4, 10,  1,  6,  0,  7, 12,  9]), array([ 8, 11,  5]))
-    """
-    # set seed
-    np.random.seed(seed)
-    N = x.shape[0]
-    tr_size = int(N*ratio)
-    perms = np.random.permutation(N)
 
-    return x[perms[:tr_size]], x[perms[tr_size:]], y[perms[:tr_size]], y[perms[tr_size:]]
+def add_offset(x):
+    """
+
+    """
+    return np.hstack((np.ones(x.shape[0])[:, np.newaxis], x))
+
+
+def replace_nan_by_means(dataset, nan_value=-999.0, mean_dataset=None):
+    """
+
+        mean_dataset : use it if the value has already been computed
+            array of shape (D) (contains the mean of each feature column)
+
+        Test :  arr_test = np.array([[1, 2, 3, 4], [10, np.nan, 11, 12], [np.nan, 13, 14, np.nan], [np.nan, 15, 16, 17]])
+                arr_test_theoric = replace_nan_by_means(arr_test)
+                assert(np.allclose(arr_test_theoric[1, 1], np.nanmean(arr_test[:, 1]))) #, "mean not computed correctly"
+    """
+
+    for col_idx in range(dataset.shape[1]):
+        dataset_col = dataset[:, col_idx]
+        dataset_col[np.isnan(dataset_col)] = mean_dataset[col_idx]
+
+    return dataset
+
+    # def replace_nan_by_feature_mean(feature):
+    #     """
+    #         input : a columns of the dataset
+            
+    #     """
+    #     feature[np.isnan(feature)] = np.nanmean(feature)
+    #     return feature
+
+
+    # if fill_values is None:
+    #     return np.apply_along_axis(replace_nan_by_feature_mean, 0, dataset)
+    # else:
+    #     dataset[dataset == nan_value] = fill_values
+    #     return dataset

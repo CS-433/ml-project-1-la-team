@@ -52,20 +52,3 @@ def compute_gradient(y,tx,w):
 
 def compute_mse(y,tx,w):
     return 0.5*np.mean((y - tx @ w)**2)
-
-def replace_nan_by_means(dataset):
-    """
-
-        Test :  arr_test = np.array([[1, 2, 3, 4], [10, np.nan, 11, 12], [np.nan, 13, 14, np.nan], [np.nan, 15, 16, 17]])
-                arr_test_theoric = replace_nan_by_means(arr_test)
-                assert(np.allclose(arr_test_theoric[1, 1], np.nanmean(arr_test[:, 1]))) #, "mean not computed correctly"
-    """
-    def replace_nan_by_feature_mean(feature):
-        """
-            input : a columns of the dataset
-            
-        """
-        feature[np.isnan(feature)] = np.nanmean(feature)
-        return feature
-
-    return np.apply_along_axis(replace_nan_by_feature_mean, 0, dataset)
