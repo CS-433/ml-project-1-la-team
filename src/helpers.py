@@ -3,26 +3,20 @@
 import numpy as np
 
 
-# def load_data(path_dataset, sub_sample=True, add_outlier=False):
-#     """Load data and convert it to the metric system."""
-#     data = np.genfromtxt(path_dataset,
-#         skip_header=1, missing_values=['s', 'b'], filling_values=['0', '1'], 
-#         max_rows=50 if sub_sample else None)
+def load_data(path_dataset, sub_sample=False):
+    """
 
-#     y = ...
-    
-#     return x, y
+    """
 
-def load_data(path_dataset, sub_sample=False, add_outlier=False):
-    # Load all data for the x array
-    data = np.genfromtxt(path_dataset, delimiter=',', skip_header=1,
-            max_rows=50 if sub_sample else None)
+    # With 2 IO access
+    data = np.genfromtxt(path_dataset, delimiter=',', encoding='utf-8',
+            skip_header=1, max_rows=50 if sub_sample else None)
     x =  data[:, 2:].copy()
 
     # Load only the first column to generate the first array
-    y_raw = np.genfromtxt(path_dataset, delimiter=',', skip_header=1, 
-            max_rows=50 if sub_sample else None, usecols=[1], 
-            dtype=np.string_)
+    y_raw = np.genfromtxt(path_dataset, delimiter=',', encoding='utf-8',
+            skip_header=1, max_rows=50 if sub_sample else None, 
+            usecols=[1], dtype=np.string_)
 
     y = []
     for sample in y_raw:
@@ -30,6 +24,21 @@ def load_data(path_dataset, sub_sample=False, add_outlier=False):
     y = np.array(y)[:, np.newaxis]
     
     return x, y
+
+    # With 1 IO access
+    # data = np.genfromtxt(path_dataset, delimiter=',', encoding='utf-8',
+    #           skip_header=0, names = True, dtype = None,
+    #           max_rows=50 if sub_sample else None)
+
+    # N, D = len(data), len(data[0])-2
+    # x = np.zeros((N, D))
+    # y = np.zeros(N)
+
+    # for row_idx, sample in enumerate(data.flat):
+    #     x[row_idx] = np.array(sample.tolist()[2:], dtype=float)
+    #     y[row_idx] = 0 if sample[1]=='b' else 1
+    
+    # return x, y
 
 
 def standardize_training(x, missing_values=True):
@@ -77,7 +86,7 @@ def add_offset(x):
     return np.hstack((np.ones(x.shape[0])[:, np.newaxis], x))
 
 
-def replace_nan_by_means(dataset, nan_value=-999.0, mean_dataset=None):
+def replace_nan_by_means(data, nan_value=-999.0, mean_data=None):
     """
 
         mean_dataset : use it if the value has already been computed
@@ -88,23 +97,8 @@ def replace_nan_by_means(dataset, nan_value=-999.0, mean_dataset=None):
                 assert(np.allclose(arr_test_theoric[1, 1], np.nanmean(arr_test[:, 1]))) #, "mean not computed correctly"
     """
 
-    for col_idx in range(dataset.shape[1]):
-        dataset_col = dataset[:, col_idx]
-        dataset_col[np.isnan(dataset_col)] = mean_dataset[col_idx]
+    for col_idx in range(data.shape[1]):
+        dataset_col = data[:, col_idx]
+        dataset_col[np.isnan(dataset_col)] = mean_data[col_idx]
 
-    return dataset
-
-    # def replace_nan_by_feature_mean(feature):
-    #     """
-    #         input : a columns of the dataset
-            
-    #     """
-    #     feature[np.isnan(feature)] = np.nanmean(feature)
-    #     return feature
-
-
-    # if fill_values is None:
-    #     return np.apply_along_axis(replace_nan_by_feature_mean, 0, dataset)
-    # else:
-    #     dataset[dataset == nan_value] = fill_values
-    #     return dataset
+    return data
