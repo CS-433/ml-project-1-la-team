@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """some helper functions."""
 import numpy as np
+import csv
 
 
 def load_data(path_dataset, sub_sample=False):
