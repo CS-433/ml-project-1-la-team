@@ -16,8 +16,8 @@ from helpers import batch_iter, build_poly
 def least_squares_GD(y, tx, initial_w, max_iters, gamma):
     """Linear regression using gradient descent"""
     w = initial_w
-    for _ in range(max_iters):
-        w -= gamma * compute_gradient(y, tx, w)
+    for _ in range(max_iters)       :
+        w -= gamma * compute_gradient(y,  tx, w)
     return w, compute_mse(y, tx, w)
 
 
@@ -109,8 +109,8 @@ def compute_mse(y, tx, w):
     return 0.5 * np.mean((y - tx @ w) ** 2)
 
 
-def compute_log_loss(y, tx, w, lambda_):
-    "Compute loss with log"
+def compute_log_loss(y, tx, w,  lambda_):
+    """Compute loss with log"""
     return (
         np.sum(np.log(1 + np.exp(tx @ w)))
         - (y.T @ (tx @ w))
