@@ -4,7 +4,7 @@
 @author ColinPelletier
 """
 import numpy as np
-
+from helpers import batch_iter
 #
 #   MANDATORY FUNCTIONS
 # 
@@ -41,7 +41,17 @@ def logistic_regression(y, tx, initial_w, max_iters, gamma):
 
 def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
     """Regularized logistic regression using gradient descent or SGD (y ∈ {0, 1}, with regularization term λ∥w∥²)"""
-    #return w, loss
+    treshold = 1e-8
+    lossList = []
+    w = initial_w
+
+    for _ in range(max_iters):
+        lossList.append(compute_log_loss(y, tx, w, lambda_))
+        w -= gamma * compute_gradient_sig(y,tx,w,lambda_)
+        if len(lossList) > 1 and np.abs(lossList[-1] - lossList[-2]) < treshold:
+            break #converge criterion
+
+    return w, lossList[-1]
 
 #
 #   HELPER FUNCTIONS
@@ -52,3 +62,14 @@ def compute_gradient(y,tx,w):
 
 def compute_mse(y,tx,w):
     return 0.5*np.mean((y - tx @ w)**2)
+
+def compute_log_loss(y,tx,w,lambda_):
+    return np.sum(np.log(1 + np.exp(tx @ w))) - (y.T @ (tx @ w)) + lambda_ * (np.linalg.norm(tx) ** 2) / 2
+
+def compute_gradient_sig(y,tx,w,lambda_):
+    """Gradient with sigmoid"""
+    return tx.T @ (sigmoid(tx @ w) - y) + lambda_ * w
+
+def sigmoid(t):
+    """Sigmoid function"""
+    return 1.0 / (1 + np.exp(-t))
