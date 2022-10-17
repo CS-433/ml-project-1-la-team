@@ -104,13 +104,13 @@ def replace_nan_by_means(data, nan_value=-999.0, mean_data=None):
     return data
 
 #Replace each degree feature by a feature of it's sine and one of it's cosine
-def expand_degree(x,IDfeature):
-    x=np.c_[x,np.cos(x[:,IDfeature])]
-    x[:,IDfeature] = np.sin(x[:,IDfeature])
+def expand_degree(x,ID_feature):
+    x=np.c_[x,np.cos(x[:,ID_feature])]
+    x[:,ID_feature] = np.sin(x[:,ID_feature])
     return x
 
 #For all degree features
-def expand_degrees(x,IDsFeatures):
-    for ids in IDsFeatures :
+def expand_degrees(x,IDs_Features):
+    for ids in IDs_Features :
         x=expand_degree(x,ids)
     return x
