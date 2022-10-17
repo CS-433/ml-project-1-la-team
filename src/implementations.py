@@ -4,7 +4,8 @@
 @author ColinPelletier
 """
 import numpy as np
-from helpers import batch_iter
+import math
+from helpers import batch_iter,build_poly
 #
 #   MANDATORY FUNCTIONS
 # 
@@ -52,6 +53,38 @@ def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
             break #converge criterion
 
     return w, lossList[-1]
+
+def cross_validation(y, x, k_indices, k, lambda_, degree):
+    """return the loss of ridge regression for a fold corresponding to k_indices
+    
+    Args:
+        y:          shape=(N,)
+        x:          shape=(N,)
+        k_indices:  2D array returned by build_k_indices()
+        k:          scalar, the k-th fold (N.B.: not to confused with k_fold which is the fold nums)
+        lambda_:    scalar, cf. ridge_regression()
+        degree:     scalar, cf. build_poly()
+
+    Returns:
+        train and test root mean square errors rmse = sqrt(2 mse)
+    """
+
+    tr_indice = k_indices[~(np.arange(k_indices.shape[0]) == k)]
+    tr_indice = tr_indice.reshape(-1)
+    te_indice = k_indices[k]
+    x_tr = x[tr_indice]
+    x_te = x[te_indice]
+    y_tr = y[tr_indice]
+    y_te = y[te_indice]
+
+    tx_tr = build_poly(x_tr, degree)
+    tx_te = build_poly(x_te, degree)
+
+    w = ridge_regression(y_tr,tx_tr,lambda_)
+
+    loss_tr = math.sqrt(2*compute_mse(y_tr,tx_tr,w))
+    loss_te = math.sqrt(2*compute_mse(y_te,tx_te,w))
+    return loss_tr, loss_te
 
 #
 #   HELPER FUNCTIONS

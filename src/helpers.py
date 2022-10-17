@@ -114,3 +114,9 @@ def expand_degrees(x,IDs_Features):
     for ids in IDs_Features :
         x=expand_degree(x,ids)
     return x
+
+def build_poly(x, degree):
+    poly = np.ones((len(x), 1))
+    for deg in range(1, degree+1):
+        poly = np.c_[poly, np.power(x, deg)]
+    return poly
