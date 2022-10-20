@@ -35,21 +35,6 @@ def load_data(path_dataset, sub_sample=False):
 
     return x, y
 
-    # With 1 IO access
-    # data = np.genfromtxt(path_dataset, delimiter=',', encoding='utf-8',
-    #           skip_header=0, names = True, dtype = None,
-    #           max_rows=50 if sub_sample else None)
-
-    # N, D = len(data), len(data[0])-2
-    # x = np.zeros((N, D))
-    # y = np.zeros(N)
-
-    # for row_idx, sample in enumerate(data.flat):
-    #     x[row_idx] = np.array(sample.tolist()[2:], dtype=float)
-    #     y[row_idx] = 0 if sample[1]=='b' else 1
-
-    # return x, y
-
 
 def standardize_training(x, missing_values=True):
     """Standardize the original data set."""
