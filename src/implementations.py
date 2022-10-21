@@ -118,13 +118,18 @@ def cross_validation(y, x, k_indices, k, initial_w, max_iters, gamma):
     y_tr = y[tr_indice]
     y_te = y[te_indice]
 
-    # w, loss = least_squares(y_tr, x_tr
-    w, _ = logistic_regression(y_tr, x_tr, initial_w, max_iters, gamma)
+    lambdas,gammas = generate_lambda_gamma(10)
+    losses_tr = np.zeros((len(lambdas), len(gammas)))
+    losses_te = np.zeros((len(lambdas), len(gammas)))
+    for ind_row, row in enumerate(lambdas):
+        for ind_col, col in enumerate(gammas):
+            w, _ = reg_logistic_regression(y_tr, x_tr, row, initial_w, max_iters, col)
+            losses_tr[ind_row, ind_col] = compute_log_loss(y_tr, x_tr, w, 0)
+            losses_te[ind_row,ind_col] = compute_log_loss(y_te, x_te, w, 0)
+    loss_tr,lambda_tr,gamma_tr = get_best_parameters(lambdas,gammas,losses_tr) #TODO use mean of best lamda and best gamma ?
+    loss_te,lambda_te,gamma_te = get_best_parameters(lambdas,gammas,losses_te)
 
-    # TODO update
-    loss_tr = compute_log_loss(y_tr, x_tr, w, 0)
-    loss_te = compute_log_loss(y_te, x_te, w, 0)
-
+    print(f"{lambda_tr}, {gamma_tr}\n{lambda_te}, {gamma_te}")
     return loss_tr, loss_te
 
 
@@ -225,3 +230,21 @@ def learning_by_gradient_descent(y, tx, w, gamma, lambda_):
 
 def sigmoid(t):
     return 1.0 / (1.0 + np.exp(-t))
+
+
+#
+# GRID SEARCH
+#
+
+
+def generate_lambda_gamma(num_intervals):
+    """Generate a grid of values for lambda and gammas."""
+    lambda_ = np.linspace(-100, 200, num_intervals)
+    gamma = np.linspace(1e-7, 1e-5, num_intervals)
+    return lambda_, gamma
+
+
+def get_best_parameters(w0, w1, losses):
+    """Get the best w from the result of grid search."""
+    min_row, min_col = np.unravel_index(np.argmin(losses), losses.shape)
+    return losses[min_row, min_col], w0[min_row], w1[min_col]
