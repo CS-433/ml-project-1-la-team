@@ -4,8 +4,7 @@
 @author ColinPelletier
 """
 import numpy as np
-import math
-from helpers import batch_iter, build_poly
+from helpers import batch_iter
 
 
 #
@@ -56,7 +55,7 @@ def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
     w = initial_w
 
     # start the logistic regression
-    for iter in range(max_iters):
+    for _ in range(max_iters):
         # get loss and update w.
         loss, w = learning_by_gradient_descent(y, tx, w, gamma, lambda_)
 
@@ -64,18 +63,18 @@ def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
         losses.append(loss)
         if len(losses) > 1 and np.abs(losses[-1] - losses[-2]) < threshold:
             break
-    
-    return w, losses[-1]
 
+    return w, losses[-1]
 
 
 #
 # Cross validation
 #
 
+
 def build_k_indices(y, k_fold, seed):
     """build k indices for k-fold.
-    
+
     Args:
         y:      shape=(N,)
         k_fold: K in K-fold, i.e. the fold num
@@ -92,7 +91,7 @@ def build_k_indices(y, k_fold, seed):
     interval = int(num_row / k_fold)
     np.random.seed(seed)
     indices = np.random.permutation(num_row)
-    k_indices = [indices[k * interval: (k + 1) * interval] for k in range(k_fold)]
+    k_indices = [indices[k * interval : (k + 1) * interval] for k in range(k_fold)]
     return np.array(k_indices)
 
 
@@ -125,13 +124,13 @@ def cross_validation(y, x, k_indices, k, initial_w, max_iters, gamma):
     # TODO update
     loss_tr = compute_log_loss(y_tr, x_tr, w, 0)
     loss_te = compute_log_loss(y_te, x_te, w, 0)
-    
+
     return loss_tr, loss_te
 
 
 def run_cross_validation(y, x, k_fold, initial_w, max_iters, gamma, seed=1):
     """cross validation over regularisation parameter lambda.
-    
+
     Args:
         degree: integer, degree of the polynomial expansion
         k_fold: integer, the number of folds
@@ -140,28 +139,29 @@ def run_cross_validation(y, x, k_fold, initial_w, max_iters, gamma, seed=1):
         best_lambda : scalar, value of the best lambda
         best_rmse : scalar, the associated root mean squared error for the best lambda
     """
-    
-    # split data in k fold
-    k_indices = build_k_indices(y, k_fold, seed)
 
     # define lists to store the loss of training data and test data
     loss_tr = []
     loss_te = []
-    
+
     # run k predictions
     for k in range(k_fold):
-        loss = cross_validation(y, x, build_k_indices(y, k_fold, seed), k, initial_w, max_iters, gamma)
+        loss = cross_validation(
+            y, x, build_k_indices(y, k_fold, seed), k, initial_w, max_iters, gamma
+        )
         loss_tr.append(loss[0])
         loss_te.append(loss[1])
-    
+
     mean_loss_tr = np.array(loss_tr).mean()
     mean_loss_te = np.array(loss_te).mean()
 
     return mean_loss_tr, mean_loss_te
 
+
 #
 #   REGRESSION
 #
+
 
 def compute_gradient_ridge(y, tx, w):
     return -tx.T.dot(y - tx @ w) / len(y)
@@ -175,18 +175,21 @@ def compute_mse(y, tx, w):
 #   LOGITSTIC REGRESSION
 #
 
+
 def compute_log_loss(y, tx, w, lambda_):
     """Compute loss with log"""
     assert y.shape[0] == tx.shape[0]
     assert tx.shape[1] == w.shape[0]
 
-    sigmoid_pred = sigmoid(tx@w)
-    sum_parts = y*np.log(sigmoid_pred) + (1-y)*np.log(1-sigmoid_pred)  
-    return -np.mean(sum_parts) + lambda_ * np.linalg.norm(w)**2
+    sigmoid_pred = sigmoid(tx @ w)
+    sum_parts = y * np.log(sigmoid_pred) + (1 - y) * np.log(1 - sigmoid_pred)
+    return -np.mean(sum_parts) + lambda_ * np.linalg.norm(w) ** 2
+
 
 def compute_gradient_sig(y, tx, w, lambda_):
     """Gradient with sigmoid"""
-    return 1/tx.shape[0]*tx.T @ (sigmoid(tx@w) - y) + lambda_*w*2
+    return 1 / tx.shape[0] * tx.T @ (sigmoid(tx @ w) - y) + lambda_ * w * 2
+
 
 def learning_by_gradient_descent(y, tx, w, gamma, lambda_):
     """
@@ -195,12 +198,12 @@ def learning_by_gradient_descent(y, tx, w, gamma, lambda_):
     Args:
         y:  shape=(N, 1)
         tx: shape=(N, D)
-        w:  shape=(D, 1) 
+        w:  shape=(D, 1)
         gamma: float
 
     Returns:
         loss: scalar number
-        w: shape=(D, 1) 
+        w: shape=(D, 1)
 
     >>> y = np.c_[[0., 1.]]
     >>> tx = np.arange(6).reshape(2, 3)
@@ -215,13 +218,10 @@ def learning_by_gradient_descent(y, tx, w, gamma, lambda_):
            [0.24828716]])
     """
     loss = compute_log_loss(y, tx, w, lambda_)
-    w = w - gamma*compute_gradient_sig(y, tx, w, lambda_)
+    w = w - gamma * compute_gradient_sig(y, tx, w, lambda_)
 
     return loss, w
 
 
 def sigmoid(t):
-    # if - t > np.log(np.finfo(type(t)).max):
-    #     return 0.0
-
     return 1.0 / (1.0 + np.exp(-t))
