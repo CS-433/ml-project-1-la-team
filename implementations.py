@@ -226,7 +226,7 @@ def learning_by_gradient_descent(y, tx, w, gamma, lambda_):
            [0.24828716]])
     """
     loss = compute_log_loss(y, tx, w)
-    w -= gamma * compute_gradient_sig(y, tx, w, 0)
+    w -= gamma * compute_gradient_sig(y, tx, w, lambda_)
 
     return loss, w
 
