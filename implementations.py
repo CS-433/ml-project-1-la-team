@@ -64,7 +64,7 @@ def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
         if len(losses) > 1 and np.abs(losses[-1] - losses[-2]) < threshold:
             break
 
-    return w, losses[-1]
+    return w, losses[-1] if len(losses) > 0 else 0
 
 
 #
@@ -226,7 +226,7 @@ def learning_by_gradient_descent(y, tx, w, gamma, lambda_):
            [0.24828716]])
     """
     loss = compute_log_loss(y, tx, w, lambda_)
-    w = w - gamma * compute_gradient_sig(y, tx, w, lambda_)
+    w -= gamma * compute_gradient_sig(y, tx, w, lambda_)
 
     return loss, w
 
