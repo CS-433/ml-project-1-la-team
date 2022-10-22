@@ -128,7 +128,7 @@ def cross_validation(y, x, k_indices, k, initial_w, max_iters, gamma):
             losses_te[ind_row, ind_col] = compute_log_loss(y_te, x_te, w, 0)
     loss_tr, lambda_tr, gamma_tr = get_best_parameters(
         lambdas, gammas, losses_tr
-    )  # TODO use mean of best lamda and best gamma ?
+    )  # use mean of best lamda and best gamma ?
     loss_te, lambda_te, gamma_te = get_best_parameters(lambdas, gammas, losses_te)
 
     print(f"{lambda_tr}, {gamma_tr}\n{lambda_te}, {gamma_te}")
