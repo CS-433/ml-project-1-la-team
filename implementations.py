@@ -189,14 +189,14 @@ def compute_log_loss(y, tx, w):
     assert y.shape[0] == tx.shape[0]
     assert tx.shape[1] == w.shape[0]
 
-    sigmoid_pred = sigmoid(tx @ w)
-    sum_parts = y * np.log(sigmoid_pred) + (1 - y) * np.log(1 - sigmoid_pred)
-    return -np.mean(sum_parts)
+    pred = sigmoid(tx @ w)
+    loss = y.T @ (np.log(pred)) + (1 - y).T @ (np.log(1 - pred))
+    return np.squeeze(- loss)
 
 
 def compute_gradient_sig(y, tx, w, lambda_):
     """Gradient with sigmoid"""
-    return tx.T @ (sigmoid(tx @ w) - y) + lambda_ * w * 2
+    return 1 / tx.shape[0] * tx.T @ (sigmoid(tx @ w) - y) + lambda_ * w * 2
 
 
 def learning_by_gradient_descent(y, tx, w, gamma, lambda_):
