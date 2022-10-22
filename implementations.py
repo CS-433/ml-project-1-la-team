@@ -64,7 +64,7 @@ def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
         if len(losses) > 1 and np.abs(losses[-1] - losses[-2]) < threshold:
             break
 
-    return w, losses[-1] if len(losses) > 0 else 0
+    return w, losses[-1] if len(losses) > 0 else compute_log_loss(y,tx,w,lambda_)
 
 
 #
