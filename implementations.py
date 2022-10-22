@@ -191,12 +191,12 @@ def compute_log_loss(y, tx, w):
 
     sigmoid_pred = sigmoid(tx @ w)
     sum_parts = y * np.log(sigmoid_pred) + (1 - y) * np.log(1 - sigmoid_pred)
-    return -np.mean(sum_parts)  # + lambda_ * np.linalg.norm(w) ** 2
+    return -np.mean(sum_parts)
 
 
 def compute_gradient_sig(y, tx, w, lambda_):
     """Gradient with sigmoid"""
-    return 1 / tx.shape[0] * tx.T @ (sigmoid(tx @ w) - y) + lambda_ * w * 2
+    return tx.T @ (sigmoid(tx @ w) - y) + lambda_ * w * 2
 
 
 def learning_by_gradient_descent(y, tx, w, gamma, lambda_):
