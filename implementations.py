@@ -118,16 +118,18 @@ def cross_validation(y, x, k_indices, k, initial_w, max_iters, gamma):
     y_tr = y[tr_indice]
     y_te = y[te_indice]
 
-    lambdas,gammas = generate_lambda_gamma(10)
+    lambdas, gammas = generate_lambda_gamma(10)
     losses_tr = np.zeros((len(lambdas), len(gammas)))
     losses_te = np.zeros((len(lambdas), len(gammas)))
     for ind_row, row in enumerate(lambdas):
         for ind_col, col in enumerate(gammas):
             w, _ = reg_logistic_regression(y_tr, x_tr, row, initial_w, max_iters, col)
             losses_tr[ind_row, ind_col] = compute_log_loss(y_tr, x_tr, w, 0)
-            losses_te[ind_row,ind_col] = compute_log_loss(y_te, x_te, w, 0)
-    loss_tr,lambda_tr,gamma_tr = get_best_parameters(lambdas,gammas,losses_tr) #TODO use mean of best lamda and best gamma ?
-    loss_te,lambda_te,gamma_te = get_best_parameters(lambdas,gammas,losses_te)
+            losses_te[ind_row, ind_col] = compute_log_loss(y_te, x_te, w, 0)
+    loss_tr, lambda_tr, gamma_tr = get_best_parameters(
+        lambdas, gammas, losses_tr
+    )  # TODO use mean of best lamda and best gamma ?
+    loss_te, lambda_te, gamma_te = get_best_parameters(lambdas, gammas, losses_te)
 
     print(f"{lambda_tr}, {gamma_tr}\n{lambda_te}, {gamma_te}")
     return loss_tr, loss_te
@@ -151,6 +153,7 @@ def run_cross_validation(y, x, k_fold, initial_w, max_iters, gamma, seed=1):
 
     # run k predictions
     for k in range(k_fold):
+        print("i")
         loss = cross_validation(
             y, x, build_k_indices(y, k_fold, seed), k, initial_w, max_iters, gamma
         )
@@ -239,8 +242,8 @@ def sigmoid(t):
 
 def generate_lambda_gamma(num_intervals):
     """Generate a grid of values for lambda and gammas."""
-    lambda_ = np.linspace(-100, 200, num_intervals)
-    gamma = np.linspace(1e-7, 1e-5, num_intervals)
+    lambda_ = np.linspace(2210, 2250, num_intervals)
+    gamma = np.linspace(35e-5, 35e-5, 1)
     return lambda_, gamma
 
 
