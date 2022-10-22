@@ -176,7 +176,7 @@ def compute_gradient_ridge(y, tx, w):
 
 
 def compute_mse(y, tx, w):
-    return np.mean((y - tx @ w) ** 2)
+    return 0.5 * np.mean((y - tx @ w) ** 2)
 
 
 #
