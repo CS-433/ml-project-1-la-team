@@ -64,7 +64,7 @@ def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
         if len(losses) > 1 and np.abs(losses[-1] - losses[-2]) < threshold:
             break
 
-    return w, losses[-1] if len(losses) > 0 else compute_log_loss(y,tx,w,lambda_)
+    return w, losses[-1] if len(losses) > 0 else compute_log_loss(y, tx, w)
 
 
 #
@@ -124,8 +124,8 @@ def cross_validation(y, x, k_indices, k, initial_w, max_iters, gamma):
     for ind_row, row in enumerate(lambdas):
         for ind_col, col in enumerate(gammas):
             w, _ = reg_logistic_regression(y_tr, x_tr, row, initial_w, max_iters, col)
-            losses_tr[ind_row, ind_col] = compute_log_loss(y_tr, x_tr, w, 0)
-            losses_te[ind_row, ind_col] = compute_log_loss(y_te, x_te, w, 0)
+            losses_tr[ind_row, ind_col] = compute_log_loss(y_tr, x_tr, w)
+            losses_te[ind_row, ind_col] = compute_log_loss(y_te, x_te, w)
     loss_tr, lambda_tr, gamma_tr = get_best_parameters(
         lambdas, gammas, losses_tr
     )  # use mean of best lamda and best gamma ?
@@ -184,14 +184,14 @@ def compute_mse(y, tx, w):
 #
 
 
-def compute_log_loss(y, tx, w, lambda_):
+def compute_log_loss(y, tx, w):
     """Compute loss with log"""
     assert y.shape[0] == tx.shape[0]
     assert tx.shape[1] == w.shape[0]
 
     sigmoid_pred = sigmoid(tx @ w)
     sum_parts = y * np.log(sigmoid_pred) + (1 - y) * np.log(1 - sigmoid_pred)
-    return -np.mean(sum_parts) + lambda_ * np.linalg.norm(w) ** 2
+    return -np.mean(sum_parts)  # + lambda_ * np.linalg.norm(w) ** 2
 
 
 def compute_gradient_sig(y, tx, w, lambda_):
@@ -225,7 +225,7 @@ def learning_by_gradient_descent(y, tx, w, gamma, lambda_):
            [0.17932896],
            [0.24828716]])
     """
-    loss = compute_log_loss(y, tx, w, lambda_)
+    loss = compute_log_loss(y, tx, w)
     w -= gamma * compute_gradient_sig(y, tx, w, lambda_)
 
     return loss, w
