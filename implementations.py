@@ -12,7 +12,7 @@ from helpers import batch_iter
 #
 
 
-def mean_sqarred_error_gd(y, tx, initial_w, max_iters, gamma):
+def mean_squared_error_gd(y, tx, initial_w, max_iters, gamma):
     """Linear regression using gradient descent"""
     w = initial_w
     for _ in range(max_iters):
@@ -20,7 +20,7 @@ def mean_sqarred_error_gd(y, tx, initial_w, max_iters, gamma):
     return w, compute_mse(y, tx, w)
 
 
-def mean_sqarred_error_sgd(y, tx, initial_w, max_iters, gamma):
+def mean_squared_error_sgd(y, tx, initial_w, max_iters, gamma):
     """Linear regression using stochastic gradient descent"""
     w = initial_w
     for _ in range(max_iters):
