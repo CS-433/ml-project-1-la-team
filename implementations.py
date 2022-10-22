@@ -242,8 +242,8 @@ def sigmoid(t):
 
 def generate_lambda_gamma(num_intervals):
     """Generate a grid of values for lambda and gammas."""
-    lambda_ = np.linspace(2210, 2250, num_intervals)
-    gamma = np.linspace(35e-5, 35e-5, 1)
+    lambda_ = np.linspace(0, 5000, num_intervals)
+    gamma = np.linspace(36e-5, 36e-5, 1)
     return lambda_, gamma
 
 
