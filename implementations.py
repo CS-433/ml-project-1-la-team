@@ -263,8 +263,8 @@ def balance_dataset(x_tr, y_tr):
 
     idx_to_select = np.random.permutation(nb_b)[:nb_s]
 
-    x_tr_s, y_tr_s = x_tr[idx_s], y_tr[idx_s][idx_to_select]
-    x_tr_b, y_tr_b = x_tr[idx_b], y_tr[idx_b][idx_to_select]
+    x_tr_s, y_tr_s = x_tr[idx_s], y_tr[idx_s]
+    x_tr_b, y_tr_b = x_tr[idx_b][idx_to_select], y_tr[idx_b][idx_to_select]
 
     x_tr_ds = np.vstack((x_tr_s, x_tr_b))
     y_tr_ds = np.vstack((y_tr_s, y_tr_b))
