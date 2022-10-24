@@ -95,7 +95,7 @@ def build_k_indices(y, k_fold, seed):
     return np.array(k_indices)
 
 
-def cross_validation(y, x, k_indices, k, initial_w, max_iters, gamma):
+def cross_validation(y, x, k_indices, k, initial_w, max_iters, gammas,lambdas):
     """return the loss of ridge regression for a fold corresponding to k_indices
 
     Args:
@@ -118,7 +118,6 @@ def cross_validation(y, x, k_indices, k, initial_w, max_iters, gamma):
     y_tr = y[tr_indice]
     y_te = y[te_indice]
 
-    lambdas, gammas = generate_lambda_gamma(10)
     losses_tr = np.zeros((len(lambdas), len(gammas)))
     losses_te = np.zeros((len(lambdas), len(gammas)))
     for ind_row, row in enumerate(lambdas):
@@ -135,7 +134,7 @@ def cross_validation(y, x, k_indices, k, initial_w, max_iters, gamma):
     return loss_tr, loss_te
 
 
-def run_cross_validation(y, x, k_fold, initial_w, max_iters, gamma, seed=1):
+def run_cross_validation(y, x, k_fold, initial_w, max_iters,gamma_min,gamma_max,lambda_min,lambda_max,num_intervals_g,num_intervals_l, seed=1):
     """cross validation over regularisation parameter lambda.
 
     Args:
@@ -150,12 +149,13 @@ def run_cross_validation(y, x, k_fold, initial_w, max_iters, gamma, seed=1):
     # define lists to store the loss of training data and test data
     loss_tr = []
     loss_te = []
-
+    lambdas = np.linspace(lambda_min, lambda_max, num_intervals_l)
+    gammas = np.linspace(gamma_min, gamma_max, num_intervals_g)
     # run k predictions
     for k in range(k_fold):
         print("i")
         loss = cross_validation(
-            y, x, build_k_indices(y, k_fold, seed), k, initial_w, max_iters, gamma
+            y, x, build_k_indices(y, k_fold, seed), k, initial_w, max_iters, gammas,lambdas
         )
         loss_tr.append(loss[0])
         loss_te.append(loss[1])
@@ -238,13 +238,6 @@ def sigmoid(t):
 #
 # GRID SEARCH
 #
-
-
-def generate_lambda_gamma(num_intervals):
-    """Generate a grid of values for lambda and gammas."""
-    lambda_ = np.linspace(0, 5000, num_intervals)
-    gamma = np.linspace(36e-5, 36e-5, 1)
-    return lambda_, gamma
 
 
 def get_best_parameters(w0, w1, losses):

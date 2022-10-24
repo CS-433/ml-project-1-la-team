@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """some helper functions."""
 import numpy as np
+from implementations import sigmoid
 import csv
 
 
@@ -35,6 +36,44 @@ def load_data(path_dataset, sub_sample=False):
 
     return x, y
 
+def remove_constant_features(tx):
+    constant_ind = np.where(np.nanstd(tx, axis=0) == 0)[0] #std = 0
+    return np.delete(tx, constant_ind , axis=1)
+
+def get_split_by_jet_data(y,tx,jet):
+    indices = np.where(tx[:, 18] == jet)
+    return y[indices], tx[indices]
+
+def robust_scaling(tx,q1,q2,q3): 
+    """Robust scaling """
+    res = (tx - q2) / (q3 - q1)
+    res[:,17] = tx[:,17]
+    return res
+
+def remove_outliers(tx,q1,q3):
+    """
+    Use IQR method from https://online.stat.psu.edu/stat200/lesson/3/3.2
+    """
+    iqr = q3 - q1
+    outq1 = np.where(tx < q1 - 1.5 * iqr)
+    print("Outliers < q1 : " + str(outq1) +","+  str(len(outq1[0])))
+    outq3 = np.where(tx > q3 + 1.5 * iqr)
+    print("Outliers > q3 : " + str(outq1) +","+  str(len(outq1[0])))
+    tx[outq1] = np.take(q1 - 1.5 * iqr,outq1[1])
+    tx[outq3] = np.take(q3 + 1.5 * iqr,outq3[1])
+    return tx
+
+def transform(tx,IDs_degrees):
+    """Remove constants,handle degrees, remove outliers, standardize with robust scaling"""
+    tx = remove_constant_features(tx)
+    tx = expand_degrees(tx,IDs_degrees)
+    q1 = np.nanpercentile(tx,q=25,axis = 0)
+    q2 = np.nanpercentile(tx,q=50,axis = 0)
+    q3 = np.nanpercentile(tx,q=75,axis = 0)
+
+    tx = remove_outliers(tx,q1,q3)
+
+    return robust_scaling(tx,q1,q2,q3)
 
 def standardize_training(x, missing_values=True):
     """Standardize the original data set."""
@@ -112,7 +151,6 @@ def expand_degrees(x, IDs_Features):
         x = expand_degree(x, ids)
     return x
 
-
 def build_poly(x, degree):
     poly = np.ones((len(x), 1))
     for deg in range(1, degree + 1):
@@ -159,3 +197,11 @@ def get_col_idx(col_name, col_names):
         Get col index given the feature name (for the initial features only)
     """
     return [col_idx-2 for col_idx, name in enumerate(col_names) if col_name == name][0]
+
+def predict(w,x):
+    y_predict = sigmoid(x @ w)
+
+    y_predict[np.where(y_predict <= 0.5)] = -1
+    y_predict[np.where(y_predict > 0.5)] = 1
+
+    return y_predict
