@@ -4,38 +4,6 @@ import numpy as np
 from implementations import sigmoid
 import csv
 
-
-def load_data(path_dataset, sub_sample=False):
-    """ """
-
-    # With 2 IO access
-    data = np.genfromtxt(
-        path_dataset,
-        delimiter=",",
-        encoding="utf-8",
-        skip_header=1,
-        max_rows=50 if sub_sample else None,
-    )
-    x = data[:, 2:].copy()
-
-    # Load only the first column to generate the first array
-    y_raw = np.genfromtxt(
-        path_dataset,
-        delimiter=",",
-        encoding="utf-8",
-        skip_header=1,
-        max_rows=50 if sub_sample else None,
-        usecols=[1],
-        dtype=np.string_,
-    )
-
-    y = []
-    for sample in y_raw:
-        y.append(0 if sample == bytes("b", "ascii") else 1)
-    y = np.array(y)[:, np.newaxis]
-
-    return x, y
-
 def remove_constant_features(tx):
     constant_ind = np.where(np.nanstd(tx, axis=0) == 0)[0] #std = 0
     return np.delete(tx, constant_ind , axis=1)
