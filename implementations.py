@@ -252,7 +252,24 @@ def get_best_parameters(w0, w1, losses):
     min_row, min_col = np.unravel_index(np.argmin(losses), losses.shape)
     return losses[min_row, min_col], w0[min_row], w1[min_col]
 
-#
-# Classificatin loss
-#
 
+def balance_dataset(x_tr, y_tr):
+    nb_s = len(y_tr[y_tr == 1])
+    nb_b = len(y_tr) - nb_s
+
+    # select ids from both classes
+    idx_s = np.where(y_tr == 1)[0]
+    idx_b = np.where(y_tr == 0)[0]
+
+    idx_to_select = np.random.permutation(nb_b)[:nb_s]
+
+    x_tr_s, y_tr_s = x_tr[idx_s], y_tr[idx_s][idx_to_select]
+    x_tr_b, y_tr_b = x_tr[idx_b], y_tr[idx_b][idx_to_select]
+
+    x_tr_ds = np.vstack((x_tr_s, x_tr_b))
+    y_tr_ds = np.vstack((y_tr_s, y_tr_b))
+    
+    assert(x_tr_ds.shape[0] == nb_s*2)
+    assert(len(y_tr_ds) == nb_s*2)
+
+    return x_tr_ds, y_tr_ds
