@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """some helper functions."""
 import numpy as np
-from implementations import sigmoid
+
 import csv
 
 def remove_constant_features(tx):
@@ -165,11 +165,3 @@ def get_col_idx(col_name, col_names):
         Get col index given the feature name (for the initial features only)
     """
     return [col_idx-2 for col_idx, name in enumerate(col_names) if col_name == name][0]
-
-def predict(w,x):
-    y_predict = sigmoid(x @ w)
-
-    y_predict[np.where(y_predict <= 0.5)] = -1
-    y_predict[np.where(y_predict > 0.5)] = 1
-
-    return y_predict

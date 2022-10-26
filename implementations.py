@@ -266,3 +266,11 @@ def balance_dataset(x_tr, y_tr):
     assert(len(y_tr_ds) == nb_s*2)
 
     return x_tr_ds, y_tr_ds
+
+def predict(w,x):
+    y_predict = sigmoid(x @ w)
+
+    y_predict[np.where(y_predict <= 0.5)] = -1
+    y_predict[np.where(y_predict > 0.5)] = 1
+
+    return y_predict
