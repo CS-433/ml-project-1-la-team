@@ -95,7 +95,7 @@ def build_k_indices(y, k_fold, seed):
     return np.array(k_indices)
 
 
-def cross_validation(y, x, k_indices, k, initial_w, max_iters, gammas,lambdas):
+def cross_validation(y, x, k_indices, k, initial_w, max_iters, gammas, lambdas):
     """return the loss of ridge regression for a fold corresponding to k_indices
 
     Args:
@@ -268,9 +268,39 @@ def balance_dataset(x_tr, y_tr):
     return x_tr_ds, y_tr_ds
 
 def predict(w,x):
+    """"
+    
+    """
     y_predict = sigmoid(x @ w)
 
-    y_predict[np.where(y_predict <= 0.5)] = -1
-    y_predict[np.where(y_predict > 0.5)] = 1
+    # TODO update this ev.
+    # y_predict[np.where(y_predict <= 0.5)] = -1
+    # y_predict[np.where(y_predict > 0.5)] = 1
+    y_predict[y_predict <= 0.5] = -1
+    y_predict[y_predict > 0.5] = 1
 
     return y_predict
+
+def remove_nan_columns(x, max_nan_ratio=0.5):
+    """
+    
+    """
+    nb_nan = np.count_nonzero(np.isnan(x), axis=0)
+    nan_ratio = nb_nan / x.shape[1]
+    
+    x = x[:, nan_ratio <= max_nan_ratio]
+    return x
+
+#
+# Classification metrics
+#
+def accuracy(y_true, y_pred):
+    """Compute accuracy"""
+    return np.sum(y_true == y_pred) / len(y_true)
+
+def f1_score(y_true, y_pred):
+    """Compute f1 score"""
+    tp = np.sum((y_true == 1) & (y_pred == 1))
+    fp = np.sum((y_true == -1) & (y_pred == 1))
+    fn = np.sum((y_true == 1) & (y_pred == -1))
+    return tp / (tp + 0.5 * (fp + fn))
