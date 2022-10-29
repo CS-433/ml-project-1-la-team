@@ -130,7 +130,7 @@ def cross_validation(y, x, k_indices, k, initial_w, max_iters, gammas,lambdas):
     )  # use mean of best lamda and best gamma ?
     loss_te, lambda_te, gamma_te = get_best_parameters(lambdas, gammas, losses_te)
 
-    print(f"{lambda_tr}, {gamma_tr}\n{lambda_te}, {gamma_te}")
+    # print(f"{lambda_tr}, {gamma_tr}\n{lambda_te}, {gamma_te}") TODO remove it
     return loss_tr, loss_te
 
 
@@ -153,7 +153,7 @@ def run_cross_validation(y, x, k_fold, initial_w, max_iters,gamma_min,gamma_max,
     gammas = np.linspace(gamma_min, gamma_max, num_intervals_g)
     # run k predictions
     for k in range(k_fold):
-        print("i")
+        print("i") # TODO remove it
         loss = cross_validation(
             y, x, build_k_indices(y, k_fold, seed), k, initial_w, max_iters, gammas,lambdas
         )

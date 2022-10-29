@@ -24,9 +24,9 @@ def remove_outliers(tx,q1,q3):
     """
     iqr = q3 - q1
     outq1 = np.where(tx < q1 - 1.5 * iqr)
-    print("Outliers < q1 : " + str(outq1) +","+  str(len(outq1[0])))
+    # print("Outliers < q1 : " + str(outq1) +","+  str(len(outq1[0]))) TODO remove it
     outq3 = np.where(tx > q3 + 1.5 * iqr)
-    print("Outliers > q3 : " + str(outq1) +","+  str(len(outq1[0])))
+    # print("Outliers > q3 : " + str(outq1) +","+  str(len(outq1[0])))  TODO remove it
     tx[outq1] = np.take(q1 - 1.5 * iqr,outq1[1])
     tx[outq3] = np.take(q3 + 1.5 * iqr,outq3[1])
     return tx
@@ -165,3 +165,14 @@ def get_col_idx(col_name, col_names):
         Get col index given the feature name (for the initial features only)
     """
     return [col_idx-2 for col_idx, name in enumerate(col_names) if col_name == name][0]
+
+
+def log_transform(x_tr, x_te, cols_idx):
+    """
+    
+    """
+    for col_idx in cols_idx:
+        x_tr[:, col_idx] = np.log(x_tr[:, col_idx] + 1) # +1 to avoid log(0)
+        x_te[:, col_idx] = np.log(x_te[:, col_idx] + 1)
+
+    return x_tr, x_te
