@@ -83,10 +83,6 @@ def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
             yield shuffled_y[start_index:end_index], shuffled_tx[start_index:end_index]
 
 
-def add_offset(x):
-    """ """
-    return np.hstack((np.ones(x.shape[0])[:, np.newaxis], x))
-
 
 def replace_nan_by_means(data, nan_value=-999.0, mean_data=None):
     """
@@ -118,12 +114,6 @@ def expand_degrees(x, IDs_Features):
     for ids in IDs_Features:
         x = expand_degree(x, ids)
     return x
-
-def build_poly(x, degree):
-    poly = np.ones((len(x), 1))
-    for deg in range(1, degree + 1):
-        poly = np.c_[poly, np.power(x, deg)]
-    return poly
 
 
 def load_csv_data(data_path, sub_sample=False):

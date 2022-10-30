@@ -54,6 +54,40 @@ def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
     losses = []
     w = initial_w
 
+    # TODO remove it
+    best_w = w
+    best_loss = 1e6
+
+    # start the logistic regression
+    for n_iter in range(max_iters):
+        # get loss and update w.
+        loss, w = learning_by_gradient_descent(y, tx, w, gamma, lambda_)
+
+        # select the max w
+        if loss < best_loss and loss > 0:
+            best_w = w
+            best_loss = loss
+
+        # converge criterion
+        losses.append(loss)
+        if len(losses) > 1 and np.abs(losses[-1] - losses[-2]) < threshold:
+            print("===== converges ! =========")
+            break
+
+        # TODO remove it
+        print("SGD iter. {bi}/{ti}: loss={l}".format(
+              bi=n_iter, ti=max_iters - 1, l=loss))
+
+    return w, compute_log_loss(y, tx, w), best_w, best_loss
+
+# TODO select only one
+def reg_logistic_regression_sgd(y, tx, lambda_, initial_w, max_iters, gamma):
+    """Regularized logistic regression using gradient descent or SGD (y ∈ {0, 1}, with regularization term λ∥w∥²)"""
+    # init parameters
+    threshold = 1e-8  # min difference improvement between two iterations
+    losses = []
+    w = initial_w
+
     # start the logistic regression
     for _ in range(max_iters):
         # get loss and update w.
@@ -62,6 +96,7 @@ def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
         # converge criterion
         losses.append(loss)
         if len(losses) > 1 and np.abs(losses[-1] - losses[-2]) < threshold:
+            print("===== converges ! =========")
             break
 
     return w, compute_log_loss(y, tx, w)
@@ -95,7 +130,7 @@ def build_k_indices(y, k_fold, seed):
     return np.array(k_indices)
 
 
-def cross_validation(y, x, k_indices, k, lambda_, is_regression, initial_w=None, degree=0, max_iters=0, gamma=0):
+def cross_validation(y, x, k_indices, k, lambda_, is_regression, initial_w=None, degree=1, max_iters=0, gamma=0, threshold=0):
     """return the loss of ridge regression for a fold corresponding to k_indices
 
     Args:
@@ -109,7 +144,6 @@ def cross_validation(y, x, k_indices, k, lambda_, is_regression, initial_w=None,
     Returns:
         train and test root mean square errors rmse = sqrt(2 mse)
     """
-
     tr_indice = k_indices[~(np.arange(k_indices.shape[0]) == k)]
     tr_indice = tr_indice.reshape(-1)
     te_indice = k_indices[k]
@@ -118,53 +152,43 @@ def cross_validation(y, x, k_indices, k, lambda_, is_regression, initial_w=None,
     y_tr = y[tr_indice]
     y_te = y[te_indice]
 
-    # losses_tr = np.zeros((len(lambdas), len(gammas)))
-    # losses_te = np.zeros((len(lambdas), len(gammas)))
-    # for ind_row, row in enumerate(lambdas):
-    #     for ind_col, col in enumerate(gammas):
-    #         w, _ = reg_logistic_regression(y_tr, x_tr, row, initial_w, max_iters, col)
-    #         losses_tr[ind_row, ind_col] = compute_log_loss(y_tr, x_tr, w)
-    #         losses_te[ind_row, ind_col] = compute_log_loss(y_te, x_te, w)
-    # loss_tr, lambda_tr, gamma_tr = get_best_parameters(
-        # lambdas, gammas, losses_tr
-    # )  # use mean of best lamda and best gamma ?
-    # loss_te, lambda_te, gamma_te = get_best_parameters(lambdas, gammas, losses_te)
-
-    # print(f"{lambda_tr}, {gamma_tr}\n{lambda_te}, {gamma_te}") TODO remove it
-    
-    # x_train = build_poly(x_train, degree) # TODO add this to test polynomial regression
-    # x_test = build_poly(x_test, degree)    
-    
-    # loss_tr = np.sqrt(2*compute_mse(y_tr, x_tr, w))
-    # loss_te = np.sqrt(2*compute_mse(y_te, x_te, w))   
-
     w = 0
     loss_tr = {}
     loss_te = {}
 
+    # add polynomial degree
+    xt_tr = build_poly(x_tr, degree) # if degree=1, add the offset
+    xt_te = build_poly(x_te, degree)
+
     if is_regression:
-        w, _ = ridge_regression(y_tr, x_tr, lambda_)
 
-        y_pred_tr = predict_reg(w, x_tr)
-        y_pred_te = predict_reg(w, x_te)
+        w, loss_train = ridge_regression(y_tr, xt_tr, lambda_)
+
+        y_pred_tr = predict_reg(w, xt_tr, threshold=threshold)
+        y_pred_te = predict_reg(w, xt_te, threshold=threshold)
+        loss_test = compute_mse(y_te, xt_te, w)
     else:
-        w, _ = reg_logistic_regression(y_tr, x_tr, lambda_, initial_w, max_iters, gamma)
+        w, loss_train = reg_logistic_regression(y_tr, xt_tr, lambda_, initial_w, max_iters, gamma)
+        print("fold {} loss_tr {}".format(k, loss_train))
 
-        y_pred_tr = predict_log(w, x_tr)
-        y_pred_te = predict_log(w, x_te)
-        # assert(y_pred_te
+        y_pred_tr = predict_log(w, xt_tr)
+        y_pred_te = predict_log(w, xt_te)
+        loss_test = compute_log_loss(y_te, xt_te, w)
+        print("fold {} loss_tr {}".format(k, loss_train))
 
     # compute scores
     loss_tr['acc'] = accuracy(y_tr, y_pred_tr)
     loss_tr['f1'] = f1_score(y_tr, y_pred_tr)
+    loss_tr['loss'] = loss_train
     
     loss_te['acc'] = accuracy(y_te, y_pred_te)
     loss_te['f1'] = f1_score(y_te, y_pred_te)
+    loss_te['loss'] = loss_test
 
     return loss_tr, loss_te
 
 
-def run_cross_validation(y, x, k_fold, is_regression, lambdas=[0.0], gammas=[0.0], initial_w=None, degree=0, max_iters=0, seed=1):
+def run_cross_validation(y, x, k_fold, is_regression, lambdas=[0.0], gammas=[0.0], initial_w=None, degrees=[1], max_iters=0, threshold=0, seed=1):
     """cross validation over regularisation parameter lambda.
 
     Args:
@@ -180,39 +204,51 @@ def run_cross_validation(y, x, k_fold, is_regression, lambdas=[0.0], gammas=[0.0
 
     for gamma in gammas:
         for lambda_ in lambdas:
-            # define lists to store the loss of training data and test data
-            k_fold_res = {
-                'lambda': lambda_,
-                'gamma': gamma
-            }
-
-            k_fold_res_tr_acc = []
-            k_fold_res_te_acc = []
-
-            k_fold_res_tr_f1 = []
-            k_fold_res_te_f1 = []
-
-            # run k predictions
-            for k in range(k_fold):
-                loss_tr, loss_te = cross_validation(y, x, build_k_indices(y, k_fold, seed), k, lambda_, is_regression, initial_w, degree, max_iters, gamma)
-
-                k_fold_res_tr_acc.append(loss_tr['acc'])
-                k_fold_res_te_acc.append(loss_te['acc'])
-                k_fold_res_tr_f1.append(loss_tr['f1'])
-                k_fold_res_te_f1.append(loss_te['f1'])
-
-            # add results
-            k_fold_res['tr'] = {
-                    'acc': np.array(k_fold_res_tr_acc).mean(),
-                    'f1': np.array(k_fold_res_tr_f1).mean()
+            for degree in degrees:
+                print("lambda_={}, degree={}, gamma={}".format(lambda_, degree, gamma)) # TODO remove
+                # define lists to store the loss of training data and test data
+                k_fold_res = {
+                    'lambda': lambda_,
+                    'gamma': gamma,
+                    'degree': degree
                 }
 
-            k_fold_res['te'] = {
-                    'acc': np.array(k_fold_res_te_acc).mean(),
-                    'f1': np.array(k_fold_res_te_f1).mean()
-                }
+                k_fold_res_tr_acc = []
+                k_fold_res_te_acc = []
 
-            res.append(k_fold_res)
+                k_fold_res_tr_f1 = []
+                k_fold_res_te_f1 = []
+
+                k_fold_res_tr_loss = []
+                k_fold_res_te_loss = []
+
+                # run k predictions
+                for k in range(k_fold):
+                    loss_tr, loss_te = cross_validation(y, x, build_k_indices(y, k_fold, seed), k, lambda_, is_regression, initial_w, degree, max_iters, gamma)
+
+                    k_fold_res_tr_acc.append(loss_tr['acc'])
+                    k_fold_res_te_acc.append(loss_te['acc'])
+
+                    k_fold_res_tr_f1.append(loss_tr['f1'])
+                    k_fold_res_te_f1.append(loss_te['f1'])
+                    
+                    k_fold_res_tr_loss.append(loss_tr['loss'])
+                    k_fold_res_te_loss.append(loss_te['loss'])
+
+                # add results
+                k_fold_res['tr'] = {
+                        'acc': np.array(k_fold_res_tr_acc).mean(),
+                        'f1': np.array(k_fold_res_tr_f1).mean(),
+                        'loss': np.array(k_fold_res_tr_loss).mean()
+                    }
+
+                k_fold_res['te'] = {
+                        'acc': np.array(k_fold_res_te_acc).mean(),
+                        'f1': np.array(k_fold_res_te_f1).mean(),
+                        'loss': np.array(k_fold_res_te_loss).mean()
+                    }
+
+                res.append(k_fold_res)
 
     return res
 
@@ -365,3 +401,16 @@ def f1_score(y_true, y_pred):
     fp = np.sum((y_true == -1) & (y_pred == 1))
     fn = np.sum((y_true == 1) & (y_pred == -1))
     return tp / (tp + 0.5 * (fp + fn))
+
+def add_offset(x):
+    """ """
+    return np.hstack((np.ones(x.shape[0])[:, np.newaxis], x))
+
+
+def build_poly(x, degree):
+    """polynomial basis functions for input data x, for j=0 up to j=degree."""
+    poly = np.ones((len(x), 1))
+    for deg in range(1, degree + 1):
+        poly = np.c_[poly, np.power(x, deg)]
+    return poly
+    
