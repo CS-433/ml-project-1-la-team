@@ -8,8 +8,8 @@ def remove_constant_features(tx):
     constant_ind = np.where(np.nanstd(tx, axis=0) == 0)[0] #std = 0
     return np.delete(tx, constant_ind , axis=1)
 
-def get_split_by_jet_data(y,tx,jet):
-    indices = np.where(tx[:, 18] == jet)
+def get_split_by_jet_data(y, tx, jet, jet_column=18):
+    indices = np.where(tx[:, jet_column] == jet)
     return y[indices], tx[indices]
 
 def robust_scaling(tx,q1,q2,q3): 

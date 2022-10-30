@@ -161,7 +161,7 @@ def cross_validation(y, x, k_indices, k, lambda_, is_regression, initial_w=None,
     xt_te = build_poly(x_te, degree)
 
     if is_regression:
-
+        # w, loss_train = ridge_regression(y_tr, xt_tr, lambda_)
         w, loss_train = ridge_regression(y_tr, xt_tr, lambda_)
 
         y_pred_tr = predict_reg(w, xt_tr, threshold=threshold)
@@ -187,8 +187,7 @@ def cross_validation(y, x, k_indices, k, lambda_, is_regression, initial_w=None,
 
     return loss_tr, loss_te
 
-
-def run_cross_validation(y, x, k_fold, is_regression, lambdas=[0.0], gammas=[0.0], initial_w=None, degrees=[1], max_iters=0, threshold=0, seed=1):
+def run_cross_validation(y, x, k_fold, is_regression, lambdas=[0.0], gammas=[0.0], initial_w=None, degrees=[1], max_iters=0, threshold=0, seed=2):
     """cross validation over regularisation parameter lambda.
 
     Args:
@@ -201,6 +200,13 @@ def run_cross_validation(y, x, k_fold, is_regression, lambdas=[0.0], gammas=[0.0
         best_rmse : scalar, the associated root mean squared error for the best lambda
     """
     res = []
+    best_res = {
+                    'lambda': lambdas[0],
+                    'gamma': gammas[0],
+                    'degree': degrees[0],
+                    'acc': -1,
+                    'f1': -1
+                }
 
     for gamma in gammas:
         for lambda_ in lambdas:
@@ -248,9 +254,17 @@ def run_cross_validation(y, x, k_fold, is_regression, lambdas=[0.0], gammas=[0.0
                         'loss': np.array(k_fold_res_te_loss).mean()
                     }
 
+                # set the best result
+                if k_fold_res['te']['acc'] > best_res['acc']:
+                    best_res['lambda'] = lambda_
+                    best_res['gamma'] = gamma
+                    best_res['degree'] = degree
+                    best_res['acc'] = k_fold_res['te']['acc']
+                    best_res['f1'] = k_fold_res['te']['f1']
+
                 res.append(k_fold_res)
 
-    return res
+    return res, best_res
 
 
 #
