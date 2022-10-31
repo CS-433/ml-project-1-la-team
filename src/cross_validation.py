@@ -67,7 +67,7 @@ def cross_validation(
         y_pred_te = predict_reg(w, xt_te, threshold=threshold)
         loss_test = compute_mse(y_te, xt_te, w)
     else:
-        w, loss_train = reg_logistic_regression( 
+        w, loss_train = reg_logistic_regression(
             y_tr, xt_tr, lambda_, initial_w, max_iters, gamma
         )
         print("fold {} loss_tr {}".format(k, loss_train))
