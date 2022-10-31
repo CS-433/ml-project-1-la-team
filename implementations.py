@@ -45,7 +45,9 @@ def logistic_regression(y, tx, initial_w, max_iters, gamma):
     return reg_logistic_regression(y, tx, 0, initial_w, max_iters, gamma)
 
 
-def reg_logistic_regression_with_best(y, tx, lambda_, initial_w, max_iters, gamma): #TODO check if useful
+def reg_logistic_regression_with_best(
+    y, tx, lambda_, initial_w, max_iters, gamma
+):  # TODO check if useful
     """Regularized logistic regression using gradient descent or SGD (y ∈ {0, 1}, with regularization term λ∥w∥²)"""
     # init parameters
     threshold = 1e-8  # min difference improvement between two iterations
@@ -72,6 +74,7 @@ def reg_logistic_regression_with_best(y, tx, lambda_, initial_w, max_iters, gamm
             break
 
     return w, compute_log_loss(y, tx, w), best_w, best_loss
+
 
 def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
     """Regularized logistic regression using gradient descent or SGD (y ∈ {0, 1}, with regularization term λ∥w∥²)"""
