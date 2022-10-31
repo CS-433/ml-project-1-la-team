@@ -1,30 +1,23 @@
 # ML Project 1 : Finding the Higgs Boson
 
-Text
+# Repository content
 
-infos
->PRI_tau_phi = angle
->
->PRI_lep_phi = angle
->
->PRI_met_phi = angle
->
->PRI_jet_leading_phi = angle
->
->PRI_jet_subleading_phi = angle
->
->PRI jet num = int [0,1,2,3] capped @3
->
->• Variables are floating point unless specified otherwise.
->
->• All azimuthal φ angles are in radian in the [−π, +π[ range.
->
->• Energy, mass, momentum are all in GeV
->
->• All other variables are unit less.
->
->Variables are indicated as “may be undefined” when it can happen that they are meaningless or cannot be computed in this case, their value is −999.0, which is outside the normal
->range of all variables.
+| run.ipynb                 contains a valid pipeline wich deliver our prediction
+| implementations.py        contains the mandatory functions
+\
+ \ *src*
+  | metrics.py              contains functions to compute accuracy and f1-score
+  | helpers.py              contains helpers functions
+  | not_used.py             contains old functions not used anymore in our final pipeline
+  | cross_validation.py     contains cross validation method and sub-functions
+  | implementations.py      contains the mandatory functions
+\
+ \ *results*
+  | Pred.csv                contains our best prediction
+\
+ \ *notebooks*
+  | data_exploration.ipynb  contains our data exploration with plots
+  | predictions.ipynb       contains our current pipeline
 
 ## Authors :
 
