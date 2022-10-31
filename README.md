@@ -1,5 +1,9 @@
 # ML Project 1 : Finding the Higgs Boson
 
+# Setup
+
+Data files test.csv and train.csv must be added into the data folder. Requirements are available in requirements.txt
+
 # Repository content
 
 ```
