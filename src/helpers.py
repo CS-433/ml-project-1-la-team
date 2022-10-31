@@ -148,7 +148,7 @@ def remove_nan_columns(x, max_nan_ratio=0.5):
     Remove columns with more than a ratio of NaN values
     """
     nb_nan = np.count_nonzero(np.isnan(x), axis=0)
-    nan_ratio = nb_nan / x.shape[1]
+    nan_ratio = nb_nan / x.shape[0]
 
     x = x[:, nan_ratio <= max_nan_ratio]
     return x
