@@ -45,14 +45,13 @@ def logistic_regression(y, tx, initial_w, max_iters, gamma):
     return reg_logistic_regression(y, tx, 0, initial_w, max_iters, gamma)
 
 
-def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
+def reg_logistic_regression_with_best(y, tx, lambda_, initial_w, max_iters, gamma): #TODO check if useful
     """Regularized logistic regression using gradient descent or SGD (y ∈ {0, 1}, with regularization term λ∥w∥²)"""
     # init parameters
     threshold = 1e-8  # min difference improvement between two iterations
     losses = []
     w = initial_w
 
-    # TODO remove it
     best_w = w
     best_loss = 1e6
 
@@ -73,6 +72,26 @@ def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
             break
 
     return w, compute_log_loss(y, tx, w), best_w, best_loss
+
+def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
+    """Regularized logistic regression using gradient descent or SGD (y ∈ {0, 1}, with regularization term λ∥w∥²)"""
+    # init parameters
+    threshold = 1e-8  # min difference improvement between two iterations
+    losses = []
+    w = initial_w
+
+    # start the logistic regression
+    for _ in range(max_iters):
+        # get loss and update w.
+        loss, w = learning_by_gradient_descent(y, tx, w, gamma, lambda_)
+
+        # converge criterion
+        losses.append(loss)
+        if len(losses) > 1 and np.abs(losses[-1] - losses[-2]) < threshold:
+            print("===== converges ! =========")
+            break
+
+    return w, compute_log_loss(y, tx, w)
 
 
 # TODO select only one
