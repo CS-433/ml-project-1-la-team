@@ -12,7 +12,8 @@ import csv
 
 def remove_constant_features(tx):
     """Remove features with a std = 0"""
-    constant_ind = np.where(np.nanstd(tx, axis=0) == 0)[0]
+    vars = np.nanvar(tx, axis=0)
+    constant_ind = np.where(np.isclose(vars, 0))[0]
     return np.delete(tx, constant_ind, axis=1)
 
 
@@ -45,9 +46,9 @@ def remove_outliers(tx, q1, q3):
 def transform(tx, IDs_degrees):
     """Remove constants, handle degrees, remove outliers, and standardize with robust scaling"""
     tx = remove_constant_features(tx)
-
     tx = expand_degrees(tx, IDs_degrees)
 
+    
     q1 = np.nanpercentile(tx, q=25, axis=0)
     q2 = np.nanpercentile(tx, q=50, axis=0)
     q3 = np.nanpercentile(tx, q=75, axis=0)

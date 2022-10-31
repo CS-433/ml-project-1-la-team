@@ -14,7 +14,7 @@ src
   | implementations.py      contains the mandatory functions
 \
 results
-  | Pred.csv                contains our best prediction
+  | predictions.csv                contains our best prediction
 \
 notebooks
   | data_exploration.ipynb  contains our data exploration with plots
