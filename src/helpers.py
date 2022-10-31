@@ -48,7 +48,6 @@ def transform(tx, IDs_degrees):
     tx = remove_constant_features(tx)
     tx = expand_degrees(tx, IDs_degrees)
 
-    
     q1 = np.nanpercentile(tx, q=25, axis=0)
     q2 = np.nanpercentile(tx, q=50, axis=0)
     q3 = np.nanpercentile(tx, q=75, axis=0)
