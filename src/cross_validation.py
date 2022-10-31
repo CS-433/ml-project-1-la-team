@@ -7,6 +7,7 @@ File used to run a cross validation
 import numpy as np
 
 from metrics import accuracy, f1_score
+
 from implementations import (
     compute_mse,
     compute_log_loss,
@@ -66,7 +67,7 @@ def cross_validation(
         y_pred_te = predict_reg(w, xt_te, threshold=threshold)
         loss_test = compute_mse(y_te, xt_te, w)
     else:
-        w, loss_train = reg_logistic_regression(
+        w, loss_train = reg_logistic_regression(  # TODO
             y_tr, xt_tr, lambda_, initial_w, max_iters, gamma
         )
         print("fold {} loss_tr {}".format(k, loss_train))
@@ -98,7 +99,6 @@ def run_cross_validation(
     initial_w=None,
     degrees=[1],
     max_iters=0,
-    threshold=0,
     seed=2,
 ):
     """cross validation over regularisation parameter lambda.
