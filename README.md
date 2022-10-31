@@ -2,38 +2,32 @@
 
 # Repository content
 
-| run.ipynb                 contains a valid pipeline wich deliver our prediction
-
+```
+| run.ipynb                 contains a valid pipeline wich deliver our prediction \n
 | implementations.py        contains the mandatory functions
-
 \
-
- \ *src*
- 
+src
   | metrics.py              contains functions to compute accuracy and f1-score
-  
   | helpers.py              contains helpers functions
-  
   | not_used.py             contains old functions not used anymore in our final pipeline
-  
   | cross_validation.py     contains cross validation method and sub-functions
-  
   | implementations.py      contains the mandatory functions
-  
 \
-
- \ *results*
- 
+results
   | Pred.csv                contains our best prediction
-  
 \
-
- \ *notebooks*
- 
+notebooks
   | data_exploration.ipynb  contains our data exploration with plots
-  
   | predictions.ipynb       contains our current pipeline
+ \
+data        # raw data 
 
+\
+generated   # generated data
+
+\
+res         # resources 
+```
 ## Authors :
 
 - Killian Raude
